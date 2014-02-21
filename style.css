@@ -1,5 +1,5 @@
 * { margin: 0px; padding: 0px; }
 html { }
-body { font-size: 12px; }
+body { font-size: 12px; background-color: #DDD; text-align: center; }
 
-#viewport { }
+#viewport { width: 640px; height: 360px; outline: 1px solid #BBB; background-color: white; margin: 0 auto; }
