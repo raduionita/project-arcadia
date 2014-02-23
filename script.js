@@ -1,6 +1,18 @@
 
 (function() {
 
+  // var requestAnimationFrame =  
+  // window.requestAnimationFrame ||
+  // window.webkitRequestAnimationFrame ||
+  // window.mozRequestAnimationFrame ||
+  // window.msRequestAnimationFrame ||
+  // window.oRequestAnimationFrame ||
+  // function(callback) {
+  // return setTimeout(callback, 1);
+  // };
+  // requestAnimationFrame(render);
+
+
   var Input = {
     KEY: {
       'BACKSPACE': 8, 'TAB': 9, 'NUM_PAD_CLEAR': 12,
@@ -22,19 +34,20 @@
     var x = Math.random() * (game.width);
     var y = Math.random() * (game.height);
     
-    var dx = -5;
-    var dy =  5;
+    var dx = .1;
+    var dy = .1;
     
     this.update = function(dt) {
-      if(x - radius <= 0) dx *= -1;
-      if(y - radius <= 0) dy *= -1;
-      if(x + radius >= game.width)  dx *= -1;
-      if(y + radius >= game.height) dy *= -1;
+      
+      x += dx * dt;
+      y += dy * dt;
+    
+      if(x - radius <= 0) { x = radius + 1; dx *= -1 };
+      if(y - radius <= 0) { y = radius + 1; dy *= -1 };
+      if(x + radius >= game.width)  { x = game.width - radius - 1; dx *= -1 };
+      if(y + radius >= game.height) { y = game.height - radius- 1; dy *= -1 };
       
       // console.log((x + radius) +' >= '+ (game.width));
-      
-      x += dx;
-      y += dy;
       
       return true;
     };
@@ -42,6 +55,7 @@
     this.render = function() {
       // console.log('Circle::render()');
       // console.log('Circle::render() - arc('+x+', '+y+', '+ radius +', ...)');
+      
       game.getContext().beginPath();
       game.getContext().arc(x, y, radius, 0, Math.PI * 2, true);
       game.getContext().closePath();
@@ -161,7 +175,7 @@
     
     this.run = function() {
       var curr = prev = +new Date;
-      var UPS  = 25;                        // updates per second
+      var UPS  = 30;                        // updates per second
       var tick = 1000 / UPS;                // update interval
 
       var intv = setInterval(function() { 
