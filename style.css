@@ -2,4 +2,4 @@
 html { }
 body { font-size: 12px; background-color: #DDD; text-align: center; }
 
-#viewport { width: 640px; height: 360px; outline: 1px solid #BBB; background-color: white; margin: 0 auto; }
+#canvas { width: 640px; height: 360px; outline: 1px solid #BBB; background-color: white; margin: 0 auto; }
