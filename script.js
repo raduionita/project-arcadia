@@ -1,68 +1,70 @@
 
 (function() {
 
-  // var requestAnimationFrame =  
-  // window.requestAnimationFrame ||
-  // window.webkitRequestAnimationFrame ||
-  // window.mozRequestAnimationFrame ||
-  // window.msRequestAnimationFrame ||
-  // window.oRequestAnimationFrame ||
-  // function(callback) {
-  // return setTimeout(callback, 1);
-  // };
-  // requestAnimationFrame(render);
-
-
-  var Input = {
-    KEY: {
-      'BACKSPACE': 8, 'TAB': 9, 'NUM_PAD_CLEAR': 12,
-      'ENTER': 13, 'SHIFT': 16, 'CTRL': 17, 'ALT': 18, 'PAUSE': 19, 'CAPS_LOCK': 20, 'ESCAPE': 27, 'SPACEBAR': 32,
-      'PAGE_UP': 33, 'PAGE_DOWN': 34, 'END': 35, 'HOME': 36,
-      'ARROW_LEFT': 37, 'ARROW_UP': 38, 'ARROW_RIGHT': 39, 'ARROW_DOWN': 40,
-      'PRINT_SCREEN': 44, 'INSERT': 45, 'DELETE': 46, 'SEMICOLON': 59, 'WINDOWS_LEFT': 91, 'WINDOWS_RIGHT': 92,
-      'SELECT': 93,
-      'NUM_PAD_ASTERISK': 106, 'NUM_PAD_PLUS_SIGN': 107, 'NUM_PAD_HYPHEN-MINUS': 109, 'NUM_PAD_FULL_STOP': 110,
-      'NUM_PAD_SOLIDUS': 111,
-      'NUM_LOCK': 144, 'SCROLL_LOCK': 145, 'SEMICOLON': 186, 'EQUALS_SIGN': 187, 'COMMA': 188, 'HYPHEN-MINUS': 189,
-      'FULL_STOP': 190, 'SOLIDUS': 191, 'GRAVE_ACCENT': 192, 'LEFT_SQUARE_BRACKET': 219, 'REVERSE_SOLIDUS': 220,
-      'RIGHT_SQUARE_BRACKET': 221, 'APOSTROPHE': 222
-    }
-  };
-  
-  var Circle = function(game) {
+  var requestAnimationFrame =  
+    window.requestAnimationFrame       ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.msRequestAnimationFrame     ||
+    window.oRequestAnimationFrame      ||
+    function(callback) {
+      return setTimeout(callback, 1);
+    };
+    
+  var Circle = function(game, id) {
+    this.id = id;
     var radius = 20;
+    var color  = 'red';
     var x = Math.random() * (game.width);
     var y = Math.random() * (game.height);
+    var vx = Math.random() * .2;
+    var vy = Math.random() * .2;
+    var context = game.getContext();
     
-    var dx = .1;
-    var dy = .1;
+    this.getBounds = function() {
+      return {
+        top:    0,
+        right:  0,
+        bottom: 0,
+        left:   0
+      };
+    };
     
-    this.update = function(dt) {
-      
-      x += dx * dt;
-      y += dy * dt;
+    this.setColor = function(c) { color = c; }
     
-      if(x - radius <= 0) { x = radius + 1; dx *= -1 };
-      if(y - radius <= 0) { y = radius + 1; dy *= -1 };
-      if(x + radius >= game.width)  { x = game.width - radius - 1; dx *= -1 };
-      if(y + radius >= game.height) { y = game.height - radius- 1; dy *= -1 };
-      
-      // console.log((x + radius) +' >= '+ (game.width));
+    this.getVx = function()  { return vx; }
+    this.setVx = function(a) { vx = a; }
+    this.getVy = function()  { return vy; }
+    this.setVy = function(a) { vy = a; }
+        
+    this.onUpdate = function(dt) {
+      x += vx * dt;
+      y += vy * dt;
+    
+      if(x - radius <= 0) { x = radius + 1; vx *= -1 };
+      if(y - radius <= 0) { y = radius + 1; vy *= -1 };
+      if(x + radius >= game.width)  { x = game.width  - radius - 1; vx *= -1 };
+      if(y + radius >= game.height) { y = game.height - radius - 1; vy *= -1 };
       
       return true;
     };
     
-    this.render = function() {
+    this.onRender = function() {
       // console.log('Circle::render()');
       // console.log('Circle::render() - arc('+x+', '+y+', '+ radius +', ...)');
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2, true);
+      context.closePath();
+      context.fillStyle = color;
+      context.strokeStyle = "black";
+      context.fill();
+      context.stroke();
+      color = 'red';
       
-      game.getContext().beginPath();
-      game.getContext().arc(x, y, radius, 0, Math.PI * 2, true);
-      game.getContext().closePath();
-      game.getContext().fillStyle = "red";
-      game.getContext().strokeStyle = "black";
-      game.getContext().fill();
-      game.getContext().stroke();
+      context.font     = "12px Arial bold";
+      context.fillStyle= "white";
+      context.fillText(id, x - 3, y + 6);
+      
       return true;
     };
   };
@@ -71,7 +73,7 @@
     var isRunning = true;
     var isUpdated = true;
     var canvas    = document.getElementById('canvas');
-    
+    var self      = this;
     var context   = canvas.getContext('2d');
     
     this.getContext = function() { return context; };
@@ -79,82 +81,43 @@
     this.width  = 640;
     this.height = 360;
     
-    // console.log(context);
+    var entities = [];
     
-    var entities = { }
-    var events = { };
-    
-    canvas.addEventListener('mousedown', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      event.cancelBubble = true;
-      events[event.timeStamp] = event;
-    }, false);  
-    
-    canvas.addEventListener('mouseup', function(event) {
-      event.preventDefault();
-      // events[event.timeStamp] = event;
-    }, false);
-    
-    canvas.addEventListener('contextmenu', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      event.cancelBubble = true;
-      return false;
-    }, false);
-    
-    window.addEventListener('keydown', function(event) {
-      event.preventDefault();
-      events[event.timeStamp] = event;
-    });
-    
-    window.addEventListener('keyup', function(event) {
-      event.preventDefault();
-      // events[event.timeStamp] = event;
-    }, false);
-    
-    var u = 0;
     var update = function(dt) {
-      u++
-      tick();
       
-      // position = position + velocity * dt
       
-      for(var timeStamp in events) {
-        var event = events[timeStamp];
-        
-        if(event.keyCode == Input.KEY.ESCAPE) {
-          alert('Stopped!');
-          isRunning = false;
-          return false;
-        }
+      // check collisions
+      for(var i = 0, l = entities.length; i < l; i++) {
+        var e1 = entities[i];
+        var b1 = e1.getBounds();
+        for(var j = i + 1; j < l; j++) {
+          var e2 = entities[j];
+          var b2 = e2.getBounds();
           
-        delete events[timeStamp];
-        // console.log('Game::update('+dt+')::'+event.type);
+          if((b1.br.x > b2.tl.x && b1.br.y > b2.tl.y && b1.tr.x < b2.tl.x && b1.tl.y < b2.tl.y) 
+          || (b1.bl.x < b2.tr.x && b1.bl.y > b2.tr.y && b1.tr.x > b2.tr.x && b1.tr.y < b2.tr.y)
+          || (b1.tl.x < b2.br.x && b1.tl.y < b2.br.y && b1.br.x > b2.br.x && b1.br.y > b2.br.y) 
+          || (b1.tr.x > b2.bl.x && b1.tr.y < b2.bl.y && b1.bl.x < b2.bl.x && b1.bl.y > b2.bl.y)) {
+            
+            console.log(e1.id +' - '+ e2.id);
+            self.stop();
+            
+          }
+          
+        }
       }
       
+      
       isUpdated = false;
-      for(var name in entities)
-        if(entities[name].update(dt))
+      for(var i = 0, l = entities.length; i < l; i++)
+        if(entities[i].onUpdate(dt))
           isUpdated = true;
     };
     
-    var r = 0;
     var render = function() {
-      r++;
-      
-      if(isUpdated) {                                           // IF scene has changed
-        context.clearRect(0, 0, 640, 360);
-        for(var name in entities)
-          entities[name].render();
-      }
-      
-      // console.log('Game::render()');
-    };
-    var tick = function(dt) {
-      events[(+new Date)] = new Event('tick');
+      context.clearRect(0, 0, 640, 360);
+      for(var i = 0, l = entities.length; i < l; i++)
+        entities[i].onRender();
     };
     
     var sleep = function(msec) {
@@ -168,25 +131,35 @@
       if(callback instanceof Function)
         callback.call(this, null);
       
-      entities['circle'] = new Circle(this);
+      entities.push(new Circle(this, 0));
+      entities.push(new Circle(this, 1));
+      entities.push(new Circle(this, 2));
+      entities.push(new Circle(this, 3));
+      entities.push(new Circle(this, 4));
+      entities.push(new Circle(this, 5));
+      entities.push(new Circle(this, 6));
+      entities.push(new Circle(this, 7));
+      entities.push(new Circle(this, 8));
+      entities.push(new Circle(this, 9));
       
       return this;
     };
     
+    var intv = null;
     this.run = function() {
       var curr = prev = +new Date;
       var UPS  = 30;                        // updates per second
       var tick = 1000 / UPS;                // update interval
 
-      var intv = setInterval(function() { 
+      intv = setInterval(function() { 
         var diff = curr - prev;
         while(diff > tick) {
           update(curr - prev);
           diff -= tick;
-          prev = curr;
-          curr = +new Date;
+          prev  = curr;
+          curr  = +new Date;
         }
-        render();
+        requestAnimationFrame(render);      
         curr = +new Date;
 
         if(!isRunning) clearInterval(intv);
@@ -194,7 +167,7 @@
     };
     
     this.stop = function() {
-      console.log('Game::stop()');
+      clearInterval(intv);
     }
   }; 
 
