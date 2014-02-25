@@ -5,34 +5,12 @@
   
   var intv = null;
   var bRunning = true;
-  
-  var Rectangle = function(x, y, width, height) {
-    this.top    = y;
-    this.right  = x + width;
-    this.bottom = y + wdith;
-    this.up     = y;
-    this.width  = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;
-    this.intersects = function(that) {
-      if((that instanceof Rectangle) === false) return false;
-      if(1) {
-        return true;
-      }
-      return false;
-    }
-  };
-  
-  var id = 0;
+    
   var Box = function(x, y, width, height) {
-    this.id     = id++;
     this.x      = x;
     this.y      = y;
     this.width  = width;
     this.height = height;
-    
-    this.color  = "red";
     
     this.vx = Math.random() * 2;
     this.vy = Math.random() * 2;
@@ -59,15 +37,11 @@
       
       context.beginPath();
       context.rect(box.x, box.y, box.width, box.height);
-      context.fillStyle = box.color;
+      context.fillStyle = 'red';
       context.fill();
       context.lineWidth = 1;
       context.strokeStyle = 'black';
       context.stroke();
-      
-      context.font ="14px Arial bold";
-      context.fillStyle = 'white';
-      context.fillText(box.id, box.x + 16, box.y + 16);
     }
   }
   function update() {
@@ -82,7 +56,7 @@
       if(self.y < 0)                           { self.y = 0; self.vy *= -1; }
       
       for(var j = i + 1; j < l; j++) {
-        var that = boxes[j];
+        var other = boxes[j];
         
         // old
         // this.right > box.left && this.bottom > box.top && this.left < box.left   && this.top < box.top
@@ -97,65 +71,70 @@
         // self.right > that.left && self.right < that.right && self.top > that.bottom && self.top > that.top
         
         var bCollision = false;
-        if((self.x + self.width > that.x && self.x + self.width < that.x + that.width && self.y + self.height > that.y && self.y + self.height < that.y + that.height)
-        || (that.x + that.width > self.x && that.x + that.width < self.x + self.width && that.y + that.height > self.y && that.y + that.height < self.y + self.height)) {
-          console.log(self.id +'x'+ that.id +'::br - tl');
+        if(self.x + self.width > other.x && self.y + self.height > other.y && self.x < other.x && self.y < other.y) {
+          console.log('br - tl');
           bCollision = true;
           
-          // var dx = self.width - (that.x - self.x);
-          // var dy = self.height - (that.y - self.y);
+          // var dx = self.width - (other.x - self.x);
+          // var dy = self.height - (other.y - self.y);
           // self.x -= dx;
           // self.y -= dy;
           
-        } else if((self.x < that.x + that.width && self.x > that.x && self.y + self.height > that.y && self.y + self.height < that.y + that.height)
-               || (that.x < self.x + self.width && that.x > self.x && that.y + that.height > self.y && that.y + that.height < self.y + self.height)){
-          console.log(self.id +'x'+ that.id +'::bl - tr');
+        } else if(self.x < other.x + other.width && self.y + self.height > other.y && self.x + self.width > other.x + other.width && self.y < other.y) {
+          console.log('bl - tr');
           bCollision = true;  
           
-          // var dx = that.width - (self.x - that.x);
-          // var dy = self.height - (that.y - self.y);
+          // var dx = other.width - (self.x - other.x);
+          // var dy = self.height - (other.y - self.y);
           // self.x += dx;
           // self.y -= dy;
           
-        } else if((self.x < that.x + that.width && self.x > that.x && self.y < that.y + that.height && self.y > that.y) 
-               || (that.x < self.x + self.width && that.x > self.x && that.y < self.y + self.height && that.y > self.y)){
-          console.log(self.id +'x'+ that.id +'::tl - br');
+        } else if(self.x < other.x + other.width && self.y < other.y + other.height && self.x + self.width > other.x + other.width && self.y + self.height > other.y + other.height) {
+          console.log('tl - br');
           bCollision = true;
           
-          // var dx = that.width - (self.x - that.x);
-          // var dy = that.height - (self.y - that.y);
+          // var dx = other.width - (self.x - other.x);
+          // var dy = other.height - (self.y - other.y);
           // self.x += dx;
           // self.y += dy;
           
-        } else if((self.x + self.width > that.x && self.x + self.width < that.x + that.width && self.y < that.y + that.height && self.y > that.y)
-               || (that.x + that.width > self.x && that.x + that.width < self.x + self.width && that.y < self.y + self.height && that.y > self.y)) {
-          console.log(self.id +'x'+ that.id +'::tr - bl');
+        } else if(self.x + self.width > other.x && self.y < other.y + other.height && self.x < other.x && self.y + self.height > other.y + other.height) {
+          console.log('tr - bl');
           bCollision = true;  
           
-          // var dx = self.width - (that.x - self.x);
-          // var dy = that.height - (self.y - that.y);
+          // var dx = self.width - (other.x - self.x);
+          // var dy = other.height - (self.y - other.y);
           // self.x -= dx;
           // self.y += dy;
           
-        }        
+        }
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
         
         if(bCollision) {
           bRunning = false;
-          return;
           var s_vx = self.vx;
           var s_vy = self.vy;
-          // self.x -= s_vx;
-          // self.y -= s_vy;
-          var t_vx = that.vx;
-          var t_vy = that.vy;
-          // that.x -= t_vx;
-          // that.y -= t_vy;
+          self.x -= s_vx;
+          self.y -= s_vy;
+          var o_vx = other.vx;
+          var o_vy = other.vy;
+          other.x -= o_vx;
+          other.y -= o_vy;
           
           // use vectors: sum up the vectors to get the correct direction
-          self.vx = t_vx;     
-          self.vy = t_vy;
-          that.vx = s_vx;
-          that.vy = s_vy;
+          self.vx = o_vx;     
+          self.vy = o_vy;
+          other.vx = s_vx;
+          other.vy = s_vy;
         }
         
       }
