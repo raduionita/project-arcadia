@@ -197,7 +197,7 @@
       
       for(var pi = 0, l = poly.points.length; pi < l; pi++) {    // Canvas edge collision detection
         var point = poly.points[pi];
-        if(point.x < 0) {
+        if(point.x < 0) { 
           poly.translate(0 - point.x, 0);
           poly.vx *= -1;
         } else if(point.x > canvas.width) {
