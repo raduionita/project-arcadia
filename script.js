@@ -206,7 +206,7 @@
         } 
         if(point.y < 0) {
           poly.translate(0, 0 - point.y);
-          poly.vy *= -1;
+          poly.vy *= -1; 
         } else if(point.y > canvas.height) {
           poly.translate(0, canvas.height - point.y);
           poly.vy *= -1;
