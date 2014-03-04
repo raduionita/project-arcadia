@@ -8,6 +8,7 @@
   var canvas  = document.getElementById('canvas');
   var context = canvas.getContext('2d');
   
+  var bRender  = true;
   var bRunning = false;
   
   window.addEventListener('keydown', function(evt) {
@@ -76,6 +77,12 @@
   // lines.push(new Line(new Point(30, 20), new Point(30, 60)));  
   // console.log(lines[0].intersects(lines[1]));
   
+  var Rectangle = function(top, right, bottom, left) {
+    this.top    = top || 0;
+    this.right  = right || 0;
+    this.bottom = bottom || 0;
+    this.left   = left || 0;
+  }
   
   var Polygon = function() {
     this.color = 'rgba(129, 210, 255, 0.5)';
@@ -134,6 +141,17 @@
       if(typeof sy == 'undefined') sy = sx;
       // ... 
     };
+    this.limits      = function() {                                           // [Object] polygon limits
+      var limits = new Rectangle(canvas.height, 0, 0, canvas.width);
+      for(var i = 0, l = this.points.length; i < l; i++) {
+        var point = this.points[i];
+        limits.top    = Math.min(limits.top, point.y);
+        limits.right  = Math.max(limits.right, point.x);
+        limits.bottom = Math.max(limits.bottom, point.y);
+        limits.left   = Math.min(limits.left, point.x);
+      }
+      return limits;
+    };
   };
   
   var polys = [];
@@ -157,6 +175,13 @@
   
   /*                                                                                                                */
   
+  function drawRectangle(rectangle) {
+    context.lineWidth = '1';
+    context.strokeStyle = "silver";
+    context.rect(rectangle.left, rectangle.top, rectangle.right - rectangle.left, rectangle.bottom - rectangle.top);
+    context.stroke();
+  }
+  
   function render() {
     context.clearRect(0, 0, 640, 360);
 
@@ -167,8 +192,8 @@
       context.strokeStyle = "black";
       context.moveTo(line.p1.x, line.p1.y);
       context.lineTo(line.p2.x, line.p2.y);
-      context.stroke(); 
       context.closePath();
+      context.stroke(); 
     } 
     
     for(var j = 0, m = polys.length; j < m; j++) {
@@ -227,26 +252,30 @@
             if(point)
               points.push(point);
           }
-          if(points.length) {
-            
-            console.log(points);
+        }
+        if(points.length) {
           
-            
-            poly.color = 'rgba(255, 150, 129, 0.5)';
-            // console.log(poly.center());
-            
-            // poly.translate(-poly.vx, -poly.vy);
-            // that.translate(-that.vx, -that.vy);
-            poly.vx *= -1;
-            poly.vy *= -1;
-            that.vx *= -1;
-            that.vy *= -1;
-            
-            // console.log(poly.center());
-            
-            bRunning = false;
-            break;
-          }
+          console.log(points);
+          
+          // var pl = poly.limits();
+          // var tl = that.limits();
+          // var dx = dy = 0;
+          
+          // if(pl.right > tl.left && pl.right < tl.right && pl.bottom > tl.top && pl.bottom < tl.bottom) {
+          // } else if(pl.left < tl.right && pl.left > tl.left && pl.bottom > tl.top && pl.bottom < tl.bottom) {
+          // } else if(pl.left < tl.right && pl.left > tl.left && pl.top < tl.bottom && pl.top > tl.top) {  
+          // } else if(pl.right > tl.left && pl.right < tl.right && pl.top < tl.bottom && pl.top > tl.top) {
+          // }
+          
+          bRender  = false;
+          bRunning = false;
+          
+          poly.vx *= -1;
+          poly.vy *= -1;
+          that.vx *= -1;
+          that.vy *= -1;
+          
+          break;
         }
       }
     }
@@ -256,7 +285,8 @@
   (function() {
     if(bRunning) {
       update();
-      render();
+      if(bRender)
+        render();
     }
     setTimeout(arguments.callee, 1000 / 60);
   })();
