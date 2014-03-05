@@ -235,20 +235,12 @@
           poly.translate(0, canvas.height - point.y);
           poly.vy *= -1;
         }        
-        
-        // TODO: Rotation speed and diration should be affected by collision
-        
       }
     
       var poly_lines = poly.lines();
       var bCollision = false;
-      for(var j = 0; j < m; j++) {                // j = i + 1
+      for(var j = i + 1; j < m; j++) {
         var that = polys[j];
-        
-        if(i == j) continue;                      // that == poly | no self evaluation
-        
-        // TODO: Optimization: do a distance test between the 2 polys to avoid doing line intersection
-        
         var that_lines = that.lines();
         var points = [];
         for(var s = 0, pl = poly_lines.length; s < pl; s++) {
@@ -266,15 +258,11 @@
           // bRender  = false;
           // bRunning = false;
           
-          // TODO: Calculate the distance between intersection points & limits
-          
-          // TODO: Rotation speed and diration should be affected by collision
-          
           poly.rotate(-theta);                    // rotate to the previous position
           poly.translate(-poly.vx, -poly.vy);     // translate to the previous position
           
           var temp_vx = poly.vx;                  // energy transfer
-          var temp_vy = poly.vy;                  // TODO: Entropy: write a proper energy transfer algorithm
+          var temp_vy = poly.vy;                  // @TODO: write a proper algorithm
           poly.vx = that.vx;
           poly.vy = that.vy;
           that.vx = temp_vx;
