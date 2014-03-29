@@ -18,7 +18,7 @@
       else
         bRunning = true;
   }, false);
-  
+   
   /*                                                                                                                */
   
   var Point = function(x, y) {
